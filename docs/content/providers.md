@@ -6,49 +6,50 @@ draft: false
 
 ## AWS AppSync
 
-_AWS Appsync_ (declared as `appsync`): currently can only `rotate` secrets. Returns rotated keys in the format:
+*AWS Appsync* (declared as `appsync`): currently can only `rotate` secrets. Returns rotated keys in the format:
 
 ```json
-{
-  "provider": "aws_appsync",
-  "key": "key",
-  "secret": "secret"
-}
+   {
+      "provider": "aws_appsync",
+      "key": "key",
+      "secret": "secret"
+   }
 ```
 
 Uses client `AWS AppSync`.
 
 ## AWS IAM
 
-_AWS IAM_ (declared as `iam`): can only `rotate` secrets (as it doesn't really
+*AWS IAM* (declared as `iam`): can only `rotate` secrets (as it doesn't really
 make sense for it to receive (via distribution) any secrets). Returns rotated
 keys in the format:
 
 ```json
-{
-  "provider": "iam",
-  "key": "<AWS ACCESS KEY ID>",
-  "secret": "<AWS ACCESS SECRET KEY>"
-}
+   {
+      "provider": "iam",
+      "key": "<AWS ACCESS KEY ID>",
+      "secret": "<AWS ACCESS SECRET KEY>"
+   }
 ```
 
 Uses client `AWS IAM`.
 
 ## AWS Kinesis Firehose
 
-_AWS Kinesis Firehose_ (declared as `firehose`): can only `distribute` secrets to Firehose destinations. It doesn't
+*AWS Kinesis Firehose* (declared as `firehose`): can only `distribute` secrets to Firehose destinations. It doesn't
 make sense for it to rotate! The distribute spec looks like this:
 
 ```yaml
-distribute:
-  - key: streamname
-    provider: firehose
-    source: secret_key
-    config:
-      dest_type: splunk | http
-      region: AWS Region
-    envs:
-      - dev
+    distribute:
+    -
+        key: streamname
+        provider: firehose
+        source: secret_key
+        config:
+            dest_type: splunk | http
+            region: AWS Region
+        envs:
+            - dev
 ```
 
 This will distribute a secret to a Firehose delivery stream destination of type `dest_type`, for a stream name of `key`.
@@ -63,47 +64,47 @@ As an example, the Firehose Splunk destination sends events to a Splunk HTTP Eve
 rotate a HEC token nightly, and save the value to a Firehose stream located in region `us-east-1`:
 
 ```yaml
-sample:
-  key: keydra_managed_sample
-  description: Example
-  custodians: my_team
-  provider: splunk_hec
-  rotate: nightly
-  config:
-    host: my.splunkhost
-    rotatewith:
-      key: keydra/splunk/admin
-      provider: secretsmanager
-  distribute:
-    - key: streamname
-      provider: firehose
-      source: hecToken
+   sample:
+      key: keydra_managed_sample
+      description: Example
+      custodians: my_team
+      provider: splunk_hec
+      rotate: nightly
       config:
-        dest_type: splunk
-        region: us-east-1
-      envs:
-        - dev
+         host: my.splunkhost
+         rotatewith:
+            key: keydra/splunk/admin
+            provider: secretsmanager
+      distribute:
+      -
+         key: streamname
+         provider: firehose
+         source: hecToken
+         config:
+            dest_type: splunk
+            region: us-east-1
+         envs:
+            - dev
 ```
 
 Uses client `AWS Kinesis Firehose`.
 
 ## AWS Secrets Manager
 
-_AWS SecretsManager_ (declared as `secretsmanager`): can `distribute` and/or `rotate` secrets.
+*AWS SecretsManager* (declared as `secretsmanager`): can `distribute` and/or `rotate` secrets.
 
-If `rotate`ing, a `config` section must be provided, with either `bypass: true` (pretend to
+If `rotate`ing, a `config` section must be provided, with either `bypass: true` (pretend to 
 rotate, but don't really - just fetch the current password from the param) or `rotate_attribute: key` (specify the key in the JSON secret which holds the actual password value to rotate).
 
 Optionally, the `config` section can specify one or more of the following to control how new passwords are generated.
-
-- length: int (32)
-- exclude_char: str ('')
-- exclude_num: bool (False)
-- exclude_punct: bool (False)
-- exclude_upper: bool (False)
-- exclude_lower: bool (False)
-- include_space: bool (False)
-- require_each_type: bool (True)
+   - length: int (32)
+   - exclude_char: str ('')
+   - exclude_num: bool (False)
+   - exclude_punct: bool (False)
+   - exclude_upper: bool (False)
+   - exclude_lower: bool (False)
+   - include_space: bool (False)
+   - require_each_type: bool (True)
 
 `secretsmanager` is _greedy_ in other words, it will take all that is provided
 by the `secret` and stick it into AWS SecretsManager. So no 1-1 mapping or
@@ -113,11 +114,11 @@ Uses client `AWS Secrets Manager`.
 
 ## AWS Systems Manager Parameter Store
 
-_AWS SSM Parameter Store_ (declared as `ssmparameterstore`): can `distribute` and/or `rotate` secrets. It
+*AWS SSM Parameter Store* (declared as `ssmparameterstore`): can `distribute` and/or `rotate` secrets. It
 exclusively uses SecureStrings to protect secrets, and currently only supports encryption using the default
 AWS Managed Key for Parameter Store.
 
-If `rotate`ing, a `config` section must be provided, with either `bypass: true` (pretend to
+If `rotate`ing, a `config` section must be provided, with either `bypass: true` (pretend to 
 rotate, but don't really - just fetch the current password from the param) or `rotate_attribute: key` (specify the key in the JSON secret which holds the actual password value to rotate)
 
 Optionally, the `config` section can specify how new passwords are generated.
@@ -126,33 +127,14 @@ Like `secretsmanager`, `ssmparameterstore` is _greedy_, and the `config` section
 
 Uses client `AWS SSM Parameter Store`.
 
-## Auth0
-
-_Auth0_ (declared as `auth0`): currently can only `rotate` secrets. Rotates client secrets for Auth0 applications using the Auth0 Management API.
-
-The credentials must be provided via the `credentials` field and should contain:
-
-```json
-{
-  "clientId": "management-api-client-id",
-  "clientSecret": "management-api-client-secret",
-  "domain": "your-tenant.auth0.com",
-  "audience": "https://your-tenant.auth0.com/api/v2/"
-}
-```
-
-The Management API application must have the `update:clients` permissions.
-
-Uses client `Auth0`.
-
 ## Bitbucket
 
-_Bitbucket_ (declared as `bitbucket`): can `distribute` secrets
+*Bitbucket* (declared as `bitbucket`): can `distribute` secrets
 to the following scopes:
 
-- `account` (account-level env variables)
-- `repository` (build-level or development-level env variables)
-- `deployment` (deployment environment env variable)
+* `account` (account-level env variables)
+* `repository` (build-level or development-level env variables)
+* `deployment` (deployment environment env variable)
 
 In the future will also
 support `rotate` keys as its own secrets should be rotated by Keydra.
@@ -165,8 +147,8 @@ Uses client `Bitbucket`.
 
 ## Cloudflare
 
-_Cloudflare_ (declared as `cloudflare`): can `rotate` secrets. Requires a
-token with the _Can create tokens_ permission in Cloudflare, registered under
+*Cloudflare* (declared as `cloudflare`): can `rotate` secrets. Requires a
+token with the  *Can create tokens* permission in Cloudflare, registered under
 `manage_tokens.secret` in SecretsManager. When invoked rotates all of the
 tokens pertaining to that account and make their `ID` and `SECRET` available,
 as per `<token_name>.key` and `<token_name>.secret`.
@@ -177,9 +159,10 @@ Uses client `Cloudflare`.
 
 Uses client `Contentful`.
 
-# Github
+Github
+======
 
-_Github_ can `distribute` secrets to the `repository` scope only. It is also a config provider. See [About Config Providers](../config_providers)), and can be used as a
+*Github* can `distribute` secrets to the `repository` scope only. It is also a config provider. See [About Config Providers](../config_providers)), and can be used as a
 source for your secret and environment specs. In your SAM template, use `KEYDRA_CFG_PROVIDER=github` to
 tell Keydra to look in Github for secrets to manage.
 
@@ -227,22 +210,22 @@ To use Github as your main Keydra source provider, set the relevant environment 
 the following in your SAM `template.yaml`:
 
 ```yaml
-Variables:
-  KEYDRA_CFG_PROVIDER: github
-  KEYDRA_CFG_CONFIG_ACCOUNTUSERNAME: myAccountName
-  KEYDRA_CFG_CONFIG_SECRETS_REPOSITORY: keydraconfiguration
-  KEYDRA_CFG_CONFIG_SECRETS_PATH: main/config/secrets.yaml
-  KEYDRA_CFG_CONFIG_SECRETS_FILETYPE: yaml
-  KEYDRA_CFG_CONFIG_ENVIRONMENTS_REPOSITORY: keydraconfiguration
-  KEYDRA_CFG_CONFIG_ENVIRONMENTS_PATH: main/config/environments.yaml
-  KEYDRA_CFG_CONFIG_ENVIRONMENTS_FILETYPE: yaml
+   Variables:
+      KEYDRA_CFG_PROVIDER: github
+      KEYDRA_CFG_CONFIG_ACCOUNTUSERNAME: myAccountName
+      KEYDRA_CFG_CONFIG_SECRETS_REPOSITORY: keydraconfiguration
+      KEYDRA_CFG_CONFIG_SECRETS_PATH: main/config/secrets.yaml
+      KEYDRA_CFG_CONFIG_SECRETS_FILETYPE: yaml
+      KEYDRA_CFG_CONFIG_ENVIRONMENTS_REPOSITORY: keydraconfiguration
+      KEYDRA_CFG_CONFIG_ENVIRONMENTS_PATH: main/config/environments.yaml
+      KEYDRA_CFG_CONFIG_ENVIRONMENTS_FILETYPE: yaml
 ```
 
 Uses client `Github`.
 
 ## Gitlab
 
-_Gitlab_ can `distribute` secrets to the `repository` scope only. It is also a config provider (see [About Config Providers](../config_providers)), and can be used as a
+*Gitlab* can `distribute` secrets to the `repository` scope only. It is also a config provider (see [About Config Providers](../config_providers)), and can be used as a
 source for your secret and environment specs. In your SAM template, use `KEYDRA_CFG_PROVIDER=gitlab` to
 tell Keydra to look in Gitlab for secrets to manage.
 
@@ -287,17 +270,17 @@ To use Gitlab as your main Keydra source provider, set the relevant environment 
 the following in your SAM `template.yaml`:
 
 ```yaml
-Variables:
-  KEYDRA_CFG_PROVIDER: gitlab
-  KEYDRA_CFG_CONFIG_SECRETS_REPOSITORY: keydraconfiguration
-  KEYDRA_CFG_CONFIG_SECRETS_REPOSITORYBRANCH: main
-  KEYDRA_CFG_CONFIG_SECRETS_PATH: config/secrets.yaml
-  KEYDRA_CFG_CONFIG_SECRETS_FILETYPE: yaml
-  KEYDRA_CFG_CONFIG_ENVIRONMENTS_REPOSITORY: keydraconfiguration
-  KEYDRA_CFG_CONFIG_ENVIRONMENTS_REPOSITORYBRANCH: main
-  KEYDRA_CFG_CONFIG_ENVIRONMENTS_PATH: config/environments.yaml
-  KEYDRA_CFG_CONFIG_ENVIRONMENTS_FILETYPE: yaml
-  KEYDRA_CFG_CONFIG_ACCOUNTUSERNAME: notRequired
+   Variables:
+      KEYDRA_CFG_PROVIDER: gitlab
+      KEYDRA_CFG_CONFIG_SECRETS_REPOSITORY: keydraconfiguration
+      KEYDRA_CFG_CONFIG_SECRETS_REPOSITORYBRANCH: main
+      KEYDRA_CFG_CONFIG_SECRETS_PATH: config/secrets.yaml
+      KEYDRA_CFG_CONFIG_SECRETS_FILETYPE: yaml
+      KEYDRA_CFG_CONFIG_ENVIRONMENTS_REPOSITORY: keydraconfiguration
+      KEYDRA_CFG_CONFIG_ENVIRONMENTS_REPOSITORYBRANCH: main
+      KEYDRA_CFG_CONFIG_ENVIRONMENTS_PATH: config/environments.yaml
+      KEYDRA_CFG_CONFIG_ENVIRONMENTS_FILETYPE: yaml
+      KEYDRA_CFG_CONFIG_ACCOUNTUSERNAME: notRequired
 ```
 
 Uses client `Gitlab`.
@@ -315,31 +298,32 @@ secret spec needs to specify a second account to be used to make the change.
 For example, for a secret spec of:
 
 ```yaml
-sample:
-  description: API User
-  key: api
-  provider: qualys
-  rotate: nightly
-  config:
-    rotatewith:
-      key: keydra/qualys/backup
-      provider: secretsmanager
-  distribute:
-    - key: keydra/qualys/api
-      provider: secretsmanager
-      source: secret
-      envs:
-        - prod
+    sample:
+      description: API User
+      key: api
+      provider: qualys
+      rotate: nightly
+      config:
+         rotatewith:
+            key: keydra/qualys/backup
+            provider: secretsmanager
+      distribute:
+      -
+         key: keydra/qualys/api
+         provider: secretsmanager
+         source: secret
+         envs:
+            - prod
 ```
 
 The provider will take an AWS Secrets Manager secret, located at `keydra/qualys/api`:
 
 ```json
-{
-  "platform": "US3",
-  "username": "apiuser",
-  "password": "Ssh.Secret!"
-}
+   {
+      "platform": "US3",
+      "username": "apiuser",
+      "password": "Ssh.Secret!"
+   }
 ```
 
 Then use the creds of the secret at `keydra/qualys/backup` (in Secrets Manager, as configured in the spec) to
@@ -352,111 +336,113 @@ Uses client `Qualys`.
 
 ## Salesforce
 
-_Salesforce_ (declared as `salesforce`): currently can only `rotate` secrets.
+*Salesforce* (declared as `salesforce`): currently can only `rotate` secrets.
 Please note that users need to be manually created in salesforce
 before added here.
 
 Sample secret spec:
 
 ```yaml
-key: salesforce_sample
-description: Salesforce Example
-custodians: your_team
-provider: salesforce
-rotate: nightly
-distribute:
-  - key: keydra/salesforce/salesforce_sample
-    provider: secretsmanager
-    source: secret
-    envs:
-      - prod
+   key: salesforce_sample
+   description: Salesforce Example
+   custodians: your_team
+   provider: salesforce
+   rotate: nightly
+   distribute:
+   -
+      key: keydra/salesforce/salesforce_sample
+      provider: secretsmanager
+      source: secret
+      envs:
+         - prod
 ```
 
 The Secrets Manager entry format is as follows:
 
 ```yaml
-{
-  "provider": "salesforce",
-  "key": "my_sf_user",
-  "secret": "my_sf_password",
-  "token": "sf_token",
-  "domain": "sf_domain",
-}
+   {
+   "provider": "salesforce",
+   "key": "my_sf_user",
+   "secret": "my_sf_password",
+   "token": "sf_token",
+   "domain": "sf_domain"
+   }
 ```
 
 The field names can be customised via a `config` section in the spec, e.g.:
 
 ```yaml
-key: salesforce_sample
-description: Salesforce Example
-provider: salesforce
-config:
-  user_field: SF_USERNAME
-  password_field: SF_PASSWORD
-  token_field: SF_TOKEN
-  domain_field: SF_DOMAIN
-# ...
+   key: salesforce_sample
+   description: Salesforce Example
+   provider: salesforce
+   config:
+      user_field: SF_USERNAME
+      password_field: SF_PASSWORD
+      token_field: SF_TOKEN
+      domain_field: SF_DOMAIN
+   # ...
 ```
 
 Uses client `Salesforce`.
 
 ## Salesforce Marketing Cloud
 
-_Salesforce Marketing Cloud_ (declared as `salesforce_marketing_cloud`): currently can only `rotate` secrets.
+*Salesforce Marketing Cloud* (declared as `salesforce_marketing_cloud`): currently can only `rotate` secrets.
 Please note that users need to be manually created in salesforce
 before added here, and be setup with the following roles:
-
-- Administration
-  - Users - Update (Allow)
-- Email
-  - Admin
-    - API Access
-      - WebService API (Allow)
-      - XML API (Allow)
+* Administration
+   * Users - Update (Allow)
+* Email
+   * Admin
+      * API Access
+         * WebService API (Allow)
+         * XML API (Allow)
 
 Sample secret spec:
 
 ```yaml
-salesforce_marketing_cloud_user:
-  key: sfuser-dev
-  description: Secret for break glass access to Salesforce Dev
-  custodians: sf_team
-  provider: salesforce_marketing_cloud
-  rotate: nightly
-  distribute:
-    - key: keydra/salesforce/sfmc-user
-      provider: secretsmanager
-      source: secret
-      envs:
-        - dev
+    salesforce_marketing_cloud_user:
+        key: sfuser-dev
+        description: Secret for break glass access to Salesforce Dev
+        custodians: sf_team
+        provider: salesforce_marketing_cloud
+        rotate: nightly
+        distribute:
+        -
+            key: keydra/salesforce/sfmc-user
+            provider: secretsmanager
+            source: secret
+            envs:
+                - dev
 ```
 
 The Secrets Manager entry format is as follows:
 
 ```yaml
-{
-  "provider": "salesforce_marketing_cloud",
-  "SF_USERNAME": "my_sf_user",
-  "SF_PASSWORD": "my_sf_password",
-  "mid": "sfmc_instance_mid",
-  "businessUnit": "sfmc_instance_bu_id",
-  "subdomain": "sfmc_subdomain",
-}
+   {
+   "provider": "salesforce_marketing_cloud",
+   "SF_USERNAME": "my_sf_user",
+   "SF_PASSWORD": "my_sf_password",
+   "mid": "sfmc_instance_mid",
+   "businessUnit": "sfmc_instance_bu_id",
+   "subdomain": "sfmc_subdomain",
+   }
 ```
 
 The field names can be customised via a `config` section in the spec, e.g.:
 
 ```yaml
-key: salesforce_marketing_cloud sample
-description: Salesforce Marketing Cloud Example
-provider: salesforce_marketing_cloud
-config:
-  user_field: SF_USERNAME,
-  password_field: SF_PASSWORD,
-  subdomain_field: SF_SUBDOMAIN,
-  businessUnit_field: SF_BUSINESUNIT,
-  mid_field: SF_MID
-# ...
+   key: salesforce_marketing_cloud sample
+   description: Salesforce Marketing Cloud Example
+   provider: salesforce_marketing_cloud
+   config:
+      user_field: SF_USERNAME,
+      password_field: SF_PASSWORD,
+      subdomain_field: SF_SUBDOMAIN,
+      businessUnit_field: SF_BUSINESUNIT,
+      mid_field: SF_MID
+      
+   # ...
 ```
 
 Uses client `Salesforce Marketing Cloud`.
@@ -478,28 +464,29 @@ is required - the provider auto detects the type of "password" being rotated, an
 An example secret spec to rotate a Splunk user password and store in AWS Secrets Manager:
 
 ```yaml
-key: splunkuser
-description: Splunk Rotation Example
-custodians: your_team
-provider: splunk
-rotate: nightly
-config:
-  host: your.splunkhostname.com
-distribute:
-  - key: keydra/splunk/splunkuser
-    provider: secretsmanager
-    source: secret
-    envs:
-      - prod
+   key: splunkuser
+   description: Splunk Rotation Example
+   custodians: your_team
+   provider: splunk
+   rotate: nightly
+   config:
+      host: your.splunkhostname.com
+   distribute:
+   -
+      key: keydra/splunk/splunkuser
+      provider: secretsmanager
+      source: secret
+      envs:
+         - prod
 ```
 
 The Secrets Manager entry format is as follows:
 
 ```json
-{
-  "username": "splunkuser",
-  "password": "abcdefghijklmnopqrstuvwxyz1234567890"
-}
+   {
+   "username": "splunkuser",
+   "password": "abcdefghijklmnopqrstuvwxyz1234567890"
+   }
 ```
 
 Distribution is a little more complex; configuring a Splunk App or Add-On with a service account to be
@@ -513,7 +500,7 @@ The destination app must already be installed on the Splunk instance, though the
 will be created if it doesn’t already exist.
 
 | Key                 | Type   | Value                                                                                                                                                                                                                            |
-| ------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|---------------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | key                 | String | The object to distribute to. Ignored/optional if we're saving to a Splunk storage password.                                                                                                                                      |
 | provider            | String | Always “splunk” for this provider.                                                                                                                                                                                               |
 | provider_secret_key | String | The credentials that should be used to authenticate to the Splunk API. In the code, this value will be prepended with `keydra/splunk/` to form the secret name in AWS Secrets Manager where the creds are stored.                |
@@ -524,7 +511,7 @@ will be created if it doesn’t already exist.
 In the `config` section:
 
 | Key       | Type   | Value                                                                                                                                                              |
-| --------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|-----------|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | host      | String | The Splunk host to configure. Only one destination host can be specified, if you need to distribute to more Splunk hosts you will need another distribution entry. |
 | app       | String | Splunk App context to deploy to.                                                                                                                                   |
 | appconfig | Dict   | Used to add any values needed by this Add-On. All appconfig KV pairs will be passed to the Splunk call as is.                                                      |
@@ -534,27 +521,28 @@ In the `config` section:
 An example, to rotate an IAM user and distribute it into the AWS app/TA of a Splunk instance:
 
 ```yaml
-key: km_managed_splunk
-description: Rotate an AWS Splunk integration account
-custodians: your_team
-provider: IAM
-rotate: nightly
-distribute:
-  - key: aws_security
-    provider: splunk
-    provider_secret_key: provisioning_user
-    source:
-      key_id: key
-      secret_key: secret
-    config:
-      app: Splunk_TA_aws
-      appconfig:
-        category: 1
-        output_mode: json
-      host: your.splunkhostname.com
-      path: splunk_ta_aws_aws_account
-    envs:
-      - prod
+   key: km_managed_splunk
+   description: Rotate an AWS Splunk integration account
+   custodians: your_team
+   provider: IAM
+   rotate: nightly
+   distribute:
+   -
+      key: aws_security
+      provider: splunk
+      provider_secret_key: provisioning_user
+      source:
+         key_id: key
+         secret_key: secret
+      config:
+         app: Splunk_TA_aws
+         appconfig:
+           category: 1
+           output_mode: json
+         host: your.splunkhostname.com
+         path: splunk_ta_aws_aws_account
+      envs:
+         - prod
 ```
 
 What does this do? Keydra will rotate these IAM credentials, then use the Splunk credentials stored in an AWS Secrets
@@ -598,31 +586,32 @@ An additional note on Splunk Cloud, which uses a DMC to distribute content to th
 5 minutes due to the cluster synchoronisation requirements.
 
 ```yaml
-key: hec1
-description: Splunk HEC Rotation Example
-custodians: your_team
-provider: splunk_hec
-rotate: nightly
-config:
-  host: your.splunkhostname.com
-  rotatewith:
-    key: keydra/splunk/admin
-    provider: secretsmanager
-distribute:
-  - key: keydra/splunk/hec1
-    provider: secretsmanager
-    source: secret
-    envs:
-      - prod
+   key: hec1
+   description: Splunk HEC Rotation Example
+   custodians: your_team
+   provider: splunk_hec
+   rotate: nightly
+   config:
+      host: your.splunkhostname.com
+      rotatewith:
+         key: keydra/splunk/admin
+         provider: secretsmanager
+   distribute:
+   -
+      key: keydra/splunk/hec1
+      provider: secretsmanager
+      source: secret
+      envs:
+         - prod
 ```
 
 The Secrets Manager entry format is as follows:
 
 ```json
-{
-  "hecInputName": "HEC Input Name",
-  "hecToken": "13e58a8a-ab69-4c89-8941-51b26d797e5a"
-}
+   {
+   "hecInputName": "HEC Input Name",
+   "hecToken": "13e58a8a-ab69-4c89-8941-51b26d797e5a"
+   }
 ```
 
 Uses client `Splunk`.
