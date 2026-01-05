@@ -18,7 +18,7 @@ class Client(BaseProvider):
             audience=credentials.get('audience')
         )
         
-    def _rotate_client_secret(self, secret):
+    def _rotate_client_secret(self):
         new_client_secret = self.auth0_client.post_rotate_client()
         
         return {
@@ -28,7 +28,7 @@ class Client(BaseProvider):
         
     @exponential_backoff_retry(3)
     def rotate(self, secret):
-        return self._rotate_client_secret(secret)
+        return self._rotate_client_secret()
     
     def distribute(self, secret, destination):
         raise DistributionException('Auth0 does not support distribution')
