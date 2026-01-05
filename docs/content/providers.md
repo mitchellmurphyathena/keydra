@@ -127,6 +127,25 @@ Like `secretsmanager`, `ssmparameterstore` is _greedy_, and the `config` section
 
 Uses client `AWS SSM Parameter Store`.
 
+## Auth0
+
+_Auth0_ (declared as `auth0`): currently can only `rotate` secrets. Rotates client secrets for Auth0 applications using the Auth0 Management API.
+
+The credentials must be provided via the `credentials` field and should contain:
+
+```json
+{
+  "clientId": "management-api-client-id",
+  "clientSecret": "management-api-client-secret",
+  "domain": "your-tenant.auth0.com",
+  "audience": "https://your-tenant.auth0.com/api/v2/"
+}
+```
+
+The Management API application must have the `update:clients` permissions.
+
+Uses client `Auth0`.
+
 ## Bitbucket
 
 *Bitbucket* (declared as `bitbucket`): can `distribute` secrets
