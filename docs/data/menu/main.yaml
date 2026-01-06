@@ -29,6 +29,8 @@ main:
       ref: "/examples/batchingruns"
     - name: Auth0 Client Secret Rotation
       ref: "/examples/auth0"
+    - name: Auth0 Email Provider Configuration
+      ref: "/examples/auth0_email_provider"
   - name: Developing
     ref: "/develop"
     sub:

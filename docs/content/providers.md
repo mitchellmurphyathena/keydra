@@ -146,6 +146,16 @@ The Management API application must have the `update:clients` permissions.
 
 Uses client `Auth0`.
 
+## Auth0 Email Provider
+
+_Auth0 Email Provider_ (declared as `auth0_email_provider`): can `distribute` email provider credentials to Auth0. This allows automated distribution of SMTP or email service credentials to Auth0's email configuration.
+
+The credentials must be provided via the `credentials` field.
+
+The Management API application must have the `update:email_provider` permissions.
+
+Uses client `Auth0`.
+
 ## Bitbucket
 
 *Bitbucket* (declared as `bitbucket`): can `distribute` secrets
