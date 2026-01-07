@@ -20,7 +20,13 @@ class Client(BaseProvider):
         print(self.auth0_client._token)
         
     def _distribute_email_credentials(self, secret, destination):
-        self.auth0_client.update_email_provider(secret)
+        post_data = dict()
+        
+        # Add the mapped values from the secret
+        for mapdest, mapsrc in destination['source'].items():
+            post_data[mapdest] = secret[mapsrc]
+        
+        self.auth0_client.update_email_provider(post_data)
         return destination
 
     def rotate(self, secret):

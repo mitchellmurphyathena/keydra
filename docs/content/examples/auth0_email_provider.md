@@ -19,7 +19,7 @@ auth0_email:
   distribute:
     - key: auth0-email-config
       provider: auth0_email_provider
-      provider_secret_key: auth0/auth0-management-api-creds
+      provider_secret_key: auth0-management-api-creds
       source: secret
       envs:
         - dev
