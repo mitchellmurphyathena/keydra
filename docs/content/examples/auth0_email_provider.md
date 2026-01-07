@@ -20,7 +20,9 @@ auth0_email:
     - key: auth0-email-config
       provider: auth0_email_provider
       provider_secret_key: auth0-management-api-creds
-      source: secret
+      source:
+        accessKeyId: key
+        secretAccessKey: secret
       envs:
         - dev
 ```
