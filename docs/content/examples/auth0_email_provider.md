@@ -5,6 +5,7 @@ draft: false
 ---
 
 Example to rotate an AWS IAM user's credentials and distribute them to Auth0's email provider configuration.
+`source` is used to map IAM user's credentials into the Auth0 email provider fields.
 
 ```yaml
 auth0_email:
