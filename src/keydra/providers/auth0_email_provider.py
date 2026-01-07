@@ -29,6 +29,8 @@ class Client(BaseProvider):
         # Add the mapped values from the secret
         for mapdest, mapsrc in destination['source'].items():
             post_data[mapdest] = secret[mapsrc]
+            
+        print("post_data", post_data)
         
         self.auth0_client.update_email_provider(post_data)
         return destination
