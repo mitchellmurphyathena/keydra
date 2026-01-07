@@ -4,7 +4,6 @@ from unittest.mock import MagicMock, patch
 from keydra.exceptions import ConfigException, DistributionException
 from keydra.providers.auth0 import Client
 
-
 VALID_CREDENTIALS = {
     'clientId': 'test_client_id',
     'clientSecret': 'test_client_secret',
@@ -12,6 +11,7 @@ VALID_CREDENTIALS = {
     'audience': 'test_audience'
 }
 
+SECRET = VALID_CREDENTIALS
 
 class TestProviderAuth0(unittest.TestCase):
 
@@ -40,12 +40,7 @@ class TestProviderAuth0(unittest.TestCase):
         mock_auth0_client.return_value = mock_client_instance
 
         client = Client(credentials=VALID_CREDENTIALS)
-        result = client._rotate_client_secret(SECRET)
-
-        self.assertEqual(result['clientId'], 'test_client_id')
-        self.assertEqual(result['clientSecret'], 'new_secret_value')
-        self.assertEqual(result['domain'], 'test_domain')
-        self.assertEqual(result['audience'], '{})
+        result = client._rotate_client_secret()
 
         self.assertEqual(result['clientId'], 'test_client_id')
         self.assertEqual(result['clientSecret'], 'new_secret_value')
