@@ -51,3 +51,31 @@ class TestAuth0Client(unittest.TestCase):
         self.assertEqual(new_secret, 'new_secret')
         mock_clients_class.assert_called_with('test_domain', 'test_token')
         mock_clients_instance.rotate_secret.assert_called_once_with('test_client_id')
+
+    @patch('keydra.clients.auth0.GetToken')
+    @patch('keydra.clients.auth0.Emails')
+    def test__update_email_provider(self, mock_emails_class, mock_get_token):
+        mock_token_instance = MagicMock()
+        mock_token_instance.client_credentials.return_value = {'access_token': 'test_token'}
+        mock_get_token.return_value = mock_token_instance
+
+        mock_emails_instance = MagicMock()
+        mock_emails_class.return_value = mock_emails_instance
+
+        client = Auth0Client(
+            client_id='test_client_id',
+            client_secret='test_client_secret',
+            domain='test_domain',
+            audience='test_audience'
+        )
+
+        test_credentials = {
+            'api_key': 'test_api_key',
+            'smtp_user': 'test_user'
+        }
+        client.update_email_provider(test_credentials)
+
+        mock_emails_class.assert_called_with('test_domain', 'test_token')
+        mock_emails_instance.update.assert_called_once_with({
+            "credentials": test_credentials,
+        })
