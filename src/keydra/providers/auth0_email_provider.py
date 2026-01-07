@@ -20,6 +20,8 @@ class Client(BaseProvider):
         print(self.auth0_client._token)
         
     def _distribute_email_credentials(self, secret, destination):
+        print(destination)
+        
         post_data = dict()
         
         # Add the mapped values from the secret
