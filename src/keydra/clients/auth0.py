@@ -14,3 +14,8 @@ class Auth0Client(object):
         new_client_secret = Clients(self._domain, self._token).rotate_secret(self._client_id)['client_secret']
         
         return new_client_secret
+    
+    def update_email_provider(self, email_provider_credentials):
+        Emails(self._domain, self._token).update({
+            "credentials": email_provider_credentials,
+        })

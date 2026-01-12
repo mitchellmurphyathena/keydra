@@ -1,5 +1,5 @@
 from keydra.clients.auth0 import Auth0Client
-from keydra.exceptions import ConfigException, DistributionException
+from keydra.exceptions import ConfigException, RotationException
 from keydra.providers.base import BaseProvider, exponential_backoff_retry
 
 class Client(BaseProvider):
@@ -17,17 +17,23 @@ class Client(BaseProvider):
             audience=credentials.get('audience')
         )
         
-    def _rotate_client_secret(self):
-        new_client_secret = self.auth0_client.post_rotate_client()
+        print(self.auth0_client._token)
         
-        return {
-            **self._orig_secret,
-            'clientSecret': new_client_secret,
-        }
+    def _distribute_email_credentials(self, secret, destination):
+        post_data = dict()
         
-    @exponential_backoff_retry(3)
+        # Add the mapped values from the secret
+        for mapdest, mapsrc in destination['source'].items():
+            post_data[mapdest] = secret[mapsrc]
+        
+        self.auth0_client.update_email_provider(post_data)
+        return destination
+
     def rotate(self, secret):
-        return self._rotate_client_secret()
+        raise RotationException('Auth0 email provider does not support rotation')
     
+    @exponential_backoff_retry(3)
     def distribute(self, secret, destination):
-        raise DistributionException('Auth0 does not support distribution')
+        return self._distribute_email_credentials(secret, destination)
+        
+        
